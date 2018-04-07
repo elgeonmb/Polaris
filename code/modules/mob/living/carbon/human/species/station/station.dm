@@ -308,14 +308,14 @@
 	min_age = 16
 	max_age = 90
 
-	blurb = "THEY BE FUCKIN BUG MEN WHAT LIVE IN LIL SUITS. GODDAMN LOVE THEM."
+	blurb = "THEY BE FUCKIN SLOTH? MEN WHAT LIVE IN LIL SUITS. GODDAMN LOVE THEM."
 
 	hazard_high_pressure = HAZARD_HIGH_PRESSURE + 500  // Dangerously high pressure. Placeholderish
 	warning_high_pressure = WARNING_HIGH_PRESSURE + 500 // High pressure warning. Placeholderish
 	warning_low_pressure = 300   // Low pressure warning. Placeholder
 	hazard_low_pressure = 220     // Dangerously low pressure.
 	safe_pressure = 400
-	poison_type = "nitrogen"                        // technically it's a partial pressure thing but IDK if we can emulate that
+	poison_type = "nitrogen"      // technically it's a partial pressure thing but IDK if we can emulate that
 
 	genders = list(FEMALE, NEUTER)
 
@@ -361,7 +361,21 @@
 	H.equip_to_slot_or_del(new /obj/item/clothing/suit/space/void/vanax/(H), slot_wear_suit) //currently doesn't allow for loadout livesuits to start pre-equiped but like, fuck if I'm gonna let people die of overpressure bc they forgot to give the suit people a suit
 	H.equip_to_slot_or_del(new /obj/item/clothing/mask/gas/vanax(H), slot_wear_mask)
 
+/datum/species/vanax/handle_environment_special(var/mob/living/carbon/human/H)
+	var/damageable = H.get_damageable_organs()
+	var/covered = H.get_coverage()
 
+	if(H.inStasisNow())
+		return
+
+	var/light_amount = 0 //how much light there is in the place, affects damage
+	if(isturf(H.loc)) //else, there's considered to be no light
+		var/turf/T = H.loc
+		light_amount = T.get_lumcount() * 10
+
+	for(var/K in damageable)
+		if(!(K in covered))
+			H.apply_damage(light_amount/4, BURN, K, 0, 0, "Abnormal growths")
 
 /datum/species/diona
 	name = SPECIES_DIONA

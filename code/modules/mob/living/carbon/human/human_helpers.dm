@@ -1,6 +1,8 @@
 #define HUMAN_EATING_NO_ISSUE		0
 #define HUMAN_EATING_NO_MOUTH		1
 #define HUMAN_EATING_BLOCKED_MOUTH	2
+#define CHECK_LIGHT					4
+#define CHECK_COLD					8
 
 /mob/living/carbon/human/can_eat(var/food, var/feedback = 1)
 	var/list/status = can_eat_status()
@@ -31,6 +33,31 @@
 	if(blocked)
 		return list(HUMAN_EATING_BLOCKED_MOUTH, blocked)
 	return list(HUMAN_EATING_NO_ISSUE)
+
+/mob/living/carbon/human/proc/get_coverage(var/checked = CHECK_LIGHT)
+	var/list/coverage = list()
+	if(checked & CHECK_LIGHT)
+		for(var/obj/item/clothing/C in src)
+			if(item_is_in_hands(C))
+				continue
+			if(C.body_parts_covered & HEAD)
+				coverage += list(organs_by_name[BP_HEAD])
+			if(C.body_parts_covered & UPPER_TORSO)
+				coverage += list(organs_by_name[BP_TORSO])
+			if(C.body_parts_covered & LOWER_TORSO)
+				coverage += list(organs_by_name[BP_GROIN])
+			if(C.body_parts_covered & LEGS)
+				coverage += list(organs_by_name[BP_L_LEG], organs_by_name[BP_R_LEG])
+			if(C.body_parts_covered & ARMS)
+				coverage += list(organs_by_name[BP_R_ARM], organs_by_name[BP_L_ARM])
+			if(C.body_parts_covered & FEET)
+				coverage += list(organs_by_name[BP_L_FOOT], organs_by_name[BP_R_FOOT])
+			if(C.body_parts_covered & HANDS)
+				coverage += list(organs_by_name[BP_L_HAND], organs_by_name[BP_R_HAND])
+	else if(checked & CHECK_COLD) // todo as part of the Great Cold Rewrite
+		return -1
+
+	return coverage
 
 //This is called when we want different types of 'cloaks' to stop working, e.g. when attacking.
 /mob/living/carbon/human/break_cloak()
@@ -167,3 +194,5 @@
 #undef HUMAN_EATING_NO_ISSUE
 #undef HUMAN_EATING_NO_MOUTH
 #undef HUMAN_EATING_BLOCKED_MOUTH
+#undef CHECK_LIGHT
+#undef CHECK_COLD
